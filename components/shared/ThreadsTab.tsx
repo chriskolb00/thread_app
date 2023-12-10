@@ -1,6 +1,7 @@
 import { fetchUserPosts } from "@/lib/actions/user.actions";
 import { redirect } from "next/navigation";
 import ThreadCard from "../cards/ThreadCard";
+import { fetchCommunityPosts } from "@/lib/actions/community.actions";
 
 interface Result {
     name:string;
@@ -33,11 +34,16 @@ const ThreadsTab = async({
 }: Props) =>{
 
     let result: Result;
-    result = await fetchUserPosts(accountId);
+    if(accountType ==='Community'){
+        result= await fetchCommunityPosts(accountId); 
+    }else{
+        result = await fetchUserPosts(accountId);
+    }  
     if(!result) redirect('/')
+
     return(
         <section className="mt-9 flex flex-col gap-10">
-            {result.threads.map((thread: any)=>(
+            {result.threads.map((thread)=>(
                 <ThreadCard  
                     key={thread._id}
                     id={thread._id} 
@@ -46,13 +52,24 @@ const ThreadsTab = async({
                     content={thread.text}
                     author ={
                         accountType ==="User" ?
-                        { name: result.name, image: result.image, id:result.id} 
+                        { 
+                            name: result.name, 
+                            image: result.image, id:result.id
+                        } 
                         :
-                        { name: thread.author.name, image: thread.author.image, id: thread.author.id}
+                        { 
+                            name: thread.author.name, 
+                            image: thread.author.image, 
+                            id: thread.author.id
+                        }
                     } //todo
                     community= {
                         accountType === "Community" ?
-                        { name:result.name, id:result.id, image:result.image}
+                        { 
+                            name:result.name, 
+                            id:result.id, 
+                            image:result.image
+                        }
                         : thread.community
                     } //todo
                     createdAt= {thread.createdAt}
